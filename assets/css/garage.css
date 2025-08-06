@@ -1,0 +1,773 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Michroma&display=swap");
+
+html,
+body {
+  height: auto;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom, rgb(18, 20, 27), rgb(0, 0, 0));
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2.5cm;
+  position: sticky;
+}
+
+header {
+  width: 100%;
+}
+
+nav {
+  max-width: 93rem;
+  background-color: rgba(43, 53, 67, 0.2);
+  margin: 5px auto;
+  border-radius: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+.navbar {
+  transition: all 0.3s ease-in-out;
+}
+
+.logo {
+  margin-left: 20px;
+}
+
+.navigation {
+  margin-right: 30px;
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.navigation a {
+  text-decoration: none;
+  color: white;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin: 0 5px;
+  transition: all 0.3s ease;
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.navigation a:hover,
+.navigation a.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.searchbox {
+  position: absolute;
+  margin-top: 0px;
+  margin-right: -16cm;
+}
+
+.header input {
+  width: 70px;
+  height: 20px;
+  padding: 10px 0px 10px 20px;
+  border-radius: 20px;
+  border: solid 1px #ffffff;
+  transition: all .3s ease-in-out;
+  outline: none;
+  opacity: 0.5;
+  margin-left: 50em;
+}
+
+.header input:focus {
+  opacity: 1;
+  width: 150px;
+}
+
+/* Garage Collection (Cart) Specific Styles */
+.garage-main {
+  padding-top: 120px;
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.garage-hero {
+  padding: 80px 5% 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.garage-title {
+  font-family: "Michroma", sans-serif;
+  font-size: clamp(3rem, 8vw, 5rem);
+  color: #f0f0f0;
+  margin-bottom: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.garage-subtitle {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 40px;
+  font-weight: 300;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Collection Container */
+.collection-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5%;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+/* Selected Cars Section */
+.selected-cars {
+  background: rgba(43, 53, 67, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  padding: 40px;
+  backdrop-filter: blur(10px);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.8rem;
+  color: #f0f0f0;
+  font-weight: 400;
+}
+
+.clear-all-btn {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  text-decoration: underline;
+}
+
+.clear-all-btn:hover {
+  color: #f0f0f0;
+}
+
+/* Car Item */
+.car-item {
+  display: flex;
+  gap: 25px;
+  padding: 30px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.car-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.car-item:hover {
+  transform: translateX(5px);
+}
+
+.car-image-small {
+  width: 150px;
+  height: 100px;
+  border-radius: 15px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.car-image-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.car-item:hover .car-image-small img {
+  transform: scale(1.05);
+}
+
+.car-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.car-name-small {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.2rem;
+  color: #f0f0f0;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.car-specs-small {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.spec-small {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.car-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.car-price-small {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.1rem;
+  color: #4caf50;
+  font-weight: 400;
+}
+
+.remove-btn {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: rgba(255, 82, 82, 0.8);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 82, 82, 0.2);
+  color: #ff5252;
+  border-color: rgba(255, 82, 82, 0.5);
+}
+
+/* Order Summary */
+.order-summary {
+  background: rgba(43, 53, 67, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  padding: 40px;
+  backdrop-filter: blur(10px);
+  height: fit-content;
+  position: sticky;
+  top: 140px;
+}
+
+.summary-title {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.5rem;
+  color: #f0f0f0;
+  margin-bottom: 30px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.summary-label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.summary-value {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  color: #f0f0f0;
+  font-weight: 500;
+}
+
+.total-row {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.total-label {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.1rem;
+  color: #f0f0f0;
+  font-weight: 400;
+}
+
+.total-value {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.3rem;
+  color: #4caf50;
+  font-weight: 400;
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.primary-action-btn {
+  cursor: pointer;
+  position: relative;
+  padding: 18px 30px;
+  font-size: 16px;
+  color: #09151f;
+  background: #4caf50;
+  border: 2px solid #4caf50;
+  border-radius: 30px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  text-align: center;
+}
+
+.primary-action-btn:hover {
+  background: rgba(76, 175, 80, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+.secondary-action-btn {
+  cursor: pointer;
+  position: relative;
+  padding: 15px 30px;
+  font-size: 14px;
+  color: #f0f0f0;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  text-align: center;
+}
+
+.secondary-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-garage {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 30px;
+}
+
+.empty-title {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.empty-description {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+.browse-btn {
+  cursor: pointer;
+  position: relative;
+  padding: 15px 30px;
+  font-size: 14px;
+  color: rgb(255, 255, 255);
+  border: 2px solid rgb(39, 62, 78);
+  border-radius: 30px;
+  background-color: transparent;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.browse-btn:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 50px;
+  height: 50px;
+  border-radius: inherit;
+  scale: 0;
+  z-index: -1;
+  background-color: rgb(69, 94, 124);
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.browse-btn:hover::before {
+  scale: 3;
+}
+
+.browse-btn:hover {
+  color: #09151f;
+  scale: 1.05;
+  box-shadow: 0 0px 20px rgba(77, 93, 117, 0.4);
+}
+
+/* Financing Options */
+.financing-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.financing-title {
+  font-family: "Michroma", sans-serif;
+  font-size: 1.1rem;
+  color: #f0f0f0;
+  margin-bottom: 20px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.financing-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.financing-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.financing-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.financing-label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.financing-value {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.9rem;
+  color: #4caf50;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .collection-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .order-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .garage-main {
+    padding-top: 100px;
+  }
+
+  .garage-hero {
+    padding: 50px 5% 40px;
+  }
+
+  .selected-cars,
+  .order-summary {
+    padding: 30px 25px;
+  }
+
+  .car-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .car-image-small {
+    width: 100%;
+    height: 200px;
+  }
+
+  .car-specs-small {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .car-actions {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .garage-title {
+    font-size: 2.5rem;
+  }
+
+  .selected-cars,
+  .order-summary {
+    padding: 25px 20px;
+  }
+
+  .action-buttons {
+    gap: 12px;
+  }
+
+  .primary-action-btn,
+  .secondary-action-btn {
+    padding: 15px 25px;
+    font-size: 14px;
+  }
+}
+
+.footer {
+  background-color: #1a1a1a;
+  color: #f0f0f0;
+  padding: 80px 0 0;
+  margin-top: 0;
+  position: relative;
+  width: 100%;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 60px;
+}
+
+.footer-left {
+  flex: 1;
+  max-width: 400px;
+}
+
+.footer-tagline {
+  font-family: "Montserrat", sans-serif;
+  font-size: 2.2rem;
+  font-weight: 300;
+  line-height: 1.3;
+  margin-bottom: 30px;
+  color: #f0f0f0;
+}
+
+.footer-btn {
+  cursor: pointer;
+  position: relative;
+  padding: 12px 24px;
+  font-size: 14px;
+  color: rgb(255, 255, 255);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  background-color: transparent;
+  font-weight: 400;
+  font-family: "Montserrat", sans-serif;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  margin-bottom: 80px;
+}
+
+.footer-btn:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 50px;
+  height: 50px;
+  border-radius: inherit;
+  scale: 0;
+  z-index: -1;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.footer-btn:hover::before {
+  scale: 3;
+}
+
+.footer-btn:hover {
+  color: #ffffff;
+  scale: 1.05;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-location {
+  position: absolute;
+  bottom: 120px;
+  left: 5%;
+}
+
+.footer-location p {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  margin: 5px 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 30px;
+}
+
+.footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: right;
+}
+
+.footer-nav a {
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: #f0f0f0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-nav a:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-social {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: right;
+}
+
+.footer-social a {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-social a:hover {
+  color: #f0f0f0;
+}
+
+.footer-contact {
+  position: absolute;
+  bottom: 100px;
+  right: 5%;
+  text-align: right;
+}
+
+.footer-contact p {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  margin: 5px 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-brand {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.footer-brand h1 {
+  font-family: "Michroma", sans-serif;
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.1);
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
