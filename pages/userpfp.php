@@ -1,13 +1,11 @@
 <?php
 session_start();
 
-// Check if user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header('Location: /pages/login.php');
     exit();
 }
 
-// Database connection
 $host = 'localhost';
 $port = '3306';
 $db_name = 'revgaragedb';
@@ -23,19 +21,18 @@ try {
     die("A database connection error occurred. Please try again later.");
 }
 
-// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
-    
+
     $action = $_POST['action'] ?? '';
     $user_id = $_SESSION['user_id'];
-    
+
     if ($action === 'update_profile') {
         $new_username = filter_var($_POST['username'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $new_email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-        
+
         $errors = [];
-        
+
         if (empty($new_username)) {
             $errors[] = "Username is required.";
         }
@@ -44,26 +41,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Invalid email format.";
         }
-        
+
         if (empty($errors)) {
             try {
                 // Check if email or username already exists (excluding current user)
                 $stmt = $pdo->prepare("SELECT user_id FROM users WHERE (email = :email OR username = :username) AND user_id != :user_id");
                 $stmt->execute(['email' => $new_email, 'username' => $new_username, 'user_id' => $user_id]);
-                
+
                 if ($stmt->rowCount() > 0) {
                     echo json_encode(['success' => false, 'message' => 'Email or Username already exists.']);
                     exit();
                 }
-                
+
                 // Update user information
                 $stmt = $pdo->prepare("UPDATE users SET username = :username, email = :email WHERE user_id = :user_id");
                 $stmt->execute(['username' => $new_username, 'email' => $new_email, 'user_id' => $user_id]);
-                
+
                 // Update session variables
                 $_SESSION['user_username'] = $new_username;
                 $_SESSION['user_email'] = $new_email;
-                
+
                 echo json_encode(['success' => true, 'message' => 'Profile updated successfully!']);
             } catch (PDOException $e) {
                 error_log("Profile Update Error: " . $e->getMessage());
@@ -74,14 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit();
     }
-    
+
     if ($action === 'change_password') {
         $current_password = $_POST['current_password'] ?? '';
         $new_password = $_POST['new_password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
-        
+
         $errors = [];
-        
+
         if (empty($current_password)) {
             $errors[] = "Current password is required.";
         }
@@ -93,24 +90,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($new_password !== $confirm_password) {
             $errors[] = "New passwords do not match.";
         }
-        
+
         if (empty($errors)) {
             try {
                 // Verify current password
                 $stmt = $pdo->prepare("SELECT password FROM users WHERE user_id = :user_id");
                 $stmt->execute(['user_id' => $user_id]);
                 $user = $stmt->fetch();
-                
+
                 if (!password_verify($current_password, $user['password'])) {
                     echo json_encode(['success' => false, 'message' => 'Current password is incorrect.']);
                     exit();
                 }
-                
+
                 // Update password
                 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("UPDATE users SET password = :password WHERE user_id = :user_id");
                 $stmt->execute(['password' => $hashed_password, 'user_id' => $user_id]);
-                
+
                 echo json_encode(['success' => true, 'message' => 'Password changed successfully!']);
             } catch (PDOException $e) {
                 error_log("Password Change Error: " . $e->getMessage());
@@ -121,6 +118,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit();
     }
+
+    if ($action === 'upload_avatar') {
+        $errors = [];
+
+        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'message' => 'Please select a valid image file.']);
+            exit();
+        }
+
+        $file = $_FILES['avatar'];
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+
+        // Validate file type
+        if (!in_array($file['type'], $allowed_types)) {
+            echo json_encode(['success' => false, 'message' => 'Only JPG, PNG, and GIF files are allowed.']);
+            exit();
+        }
+
+        // Validate file size
+        if ($file['size'] > $max_size) {
+            echo json_encode(['success' => false, 'message' => 'File size must be less than 5MB.']);
+            exit();
+        }
+
+        // Create uploads directory if it doesn't exist
+        $upload_dir = '../uploads/avatars/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        // Generate unique filename
+        $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $new_filename = 'avatar_' . $user_id . '_' . uniqid() . '.' . $file_extension;
+        $upload_path = $upload_dir . $new_filename;
+        $db_path = '/uploads/avatars/' . $new_filename;
+
+        try {
+            // Get current profile picture to delete old one
+            $stmt = $pdo->prepare("SELECT profile_picture FROM users WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+            $current_user = $stmt->fetch();
+
+            // Move uploaded file
+            if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+                // Update database
+                $stmt = $pdo->prepare("UPDATE users SET profile_picture = :profile_picture WHERE user_id = :user_id");
+                $stmt->execute(['profile_picture' => $db_path, 'user_id' => $user_id]);
+
+                // Delete old profile picture if it exists
+                if ($current_user['profile_picture'] && file_exists('..' . $current_user['profile_picture'])) {
+                    unlink('..' . $current_user['profile_picture']);
+                }
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Profile picture updated successfully!',
+                    'new_avatar_url' => $db_path
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to upload file.']);
+            }
+        } catch (PDOException $e) {
+            error_log("Avatar Upload Error: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Error updating profile picture.']);
+        }
+        exit();
+    }
 }
 
 // Get user information
@@ -128,7 +193,7 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = :user_id");
     $stmt->execute(['user_id' => $_SESSION['user_id']]);
     $user = $stmt->fetch();
-    
+
     if (!$user) {
         session_destroy();
         header('Location: /pages/login.php');
@@ -142,19 +207,21 @@ try {
 // Get user statistics
 try {
     // Get garage count
-    $stmt = $pdo->prepare("SELECT COUNT(*) as garage_count FROM garage WHERE user_id = :user_id");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as garage_count FROM garage_items WHERE user_id = :user_id");
     $stmt->execute(['user_id' => $_SESSION['user_id']]);
     $garage_count = $stmt->fetch()['garage_count'];
-    
+
     // Get order count
     $stmt = $pdo->prepare("SELECT COUNT(*) as order_count FROM orders WHERE user_id = :user_id");
     $stmt->execute(['user_id' => $_SESSION['user_id']]);
     $order_count = $stmt->fetch()['order_count'];
-    
 } catch (PDOException $e) {
     $garage_count = 0;
     $order_count = 0;
 }
+
+// Set default avatar if none exists
+$avatar_url = $user['profile_picture'] ? $user['profile_picture'] : "/placeholder.svg?height=120&width=120&text=" . substr($user['username'], 0, 1);
 ?>
 
 <!DOCTYPE html>
@@ -189,8 +256,8 @@ try {
             <!-- Profile Header -->
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <img src="/placeholder.svg?height=120&width=120&text=<?php echo substr($user['username'], 0, 1); ?>" alt="Profile Picture" />
-                    <button class="avatar-edit-btn">
+                    <img id="profileImage" src="<?php echo htmlspecialchars($avatar_url); ?>" alt="Profile Picture" />
+                    <button class="avatar-edit-btn" onclick="openAvatarModal()">
                         <i class="fas fa-camera"></i>
                     </button>
                 </div>
@@ -222,17 +289,17 @@ try {
 
                     <form class="profile-form" id="profileForm">
                         <input type="hidden" name="action" value="update_profile" />
-                        
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" id="username" name="username" class="form-input" 
-                                       value="<?php echo htmlspecialchars($user['username']); ?>" required />
+                                <input type="text" id="username" name="username" class="form-input"
+                                    value="<?php echo htmlspecialchars($user['username']); ?>" required />
                             </div>
                             <div class="form-group">
                                 <label for="email" class="form-label">Email Address</label>
-                                <input type="email" id="email" name="email" class="form-input" 
-                                       value="<?php echo htmlspecialchars($user['email']); ?>" required />
+                                <input type="email" id="email" name="email" class="form-input"
+                                    value="<?php echo htmlspecialchars($user['email']); ?>" required />
                             </div>
                         </div>
 
@@ -254,7 +321,7 @@ try {
 
                     <form class="profile-form" id="passwordForm">
                         <input type="hidden" name="action" value="change_password" />
-                        
+
                         <div class="form-group">
                             <label for="current_password" class="form-label">Current Password</label>
                             <div class="password-input-group">
@@ -270,8 +337,8 @@ try {
                             <div class="form-group">
                                 <label for="new_password" class="form-label">New Password</label>
                                 <div class="password-input-group">
-                                    <input type="password" id="new_password" name="new_password" class="form-input" 
-                                           placeholder="Min. 8 characters" required />
+                                    <input type="password" id="new_password" name="new_password" class="form-input"
+                                        placeholder="Min. 8 characters" required />
                                     <button type="button" class="password-toggle" onclick="togglePassword('new_password', this)">
                                         <i class="fa-regular fa-eye"></i>
                                         <i class="fa-regular fa-eye-slash"></i>
@@ -299,7 +366,7 @@ try {
                     </form>
                 </div>
 
-                <!-- Quick Actions -->
+
                 <div class="profile-section">
                     <div class="section-header">
                         <h2 class="section-title">Quick Actions</h2>
@@ -351,9 +418,45 @@ try {
         </div>
     </main>
 
+    <!--pfp modal -->
+    <div id="avatarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Profile Picture</h3>
+                <button class="modal-close" onclick="closeAvatarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="avatarForm" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="upload_avatar" />
+                    <div class="avatar-preview">
+                        <img id="avatarPreview" src="<?php echo htmlspecialchars($avatar_url); ?>" alt="Avatar Preview" />
+                    </div>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="avatarFile" name="avatar" accept="image/*" onchange="previewAvatar(this)" />
+                        <label for="avatarFile" class="file-input-label">
+                            <i class="fas fa-upload"></i>
+                            Choose Image
+                        </label>
+                    </div>
+                    <p class="file-info">Supported formats: JPG, PNG, GIF. Max size: 5MB</p>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Picture
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="closeAvatarModal()">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <?php include('../includes/footer.php'); ?>
 
     <script src="/assets/js/profile.js"></script>
+    <?php include 'chatbot.php'; ?>
 </body>
 
 </html>

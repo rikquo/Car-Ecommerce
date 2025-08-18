@@ -1,0 +1,188 @@
+/* settings.css - Optimized for Rev Garage Admin Dark Theme */
+.settings-container {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-medium);
+}
+
+.settings-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.settings-section h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.settings-section h2 i {
+  color: var(--accent-blue);
+  font-size: 1.25rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input[type="password"]:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.form-group input[type="file"] {
+  width: 100%;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.form-group input[type="file"]::file-selector-button {
+  background: var(--accent-blue);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 1rem;
+  font-weight: 500;
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+  background: var(--accent-blue);
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.current-profile-picture {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.current-profile-picture p {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.current-profile-picture img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-blue);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-submit {
+  background: var(--accent-blue);
+  color: white;
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.btn-submit:hover {
+  background: var(--accent-blue);
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: white;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.alert i {
+  font-size: 1.25rem;
+}
+
+.alert-success {
+  background: var(--accent-green);
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.alert-error {
+  background: var(--accent-red);
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-container {
+    margin: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .settings-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .current-profile-picture img {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-container {
+    margin: 1rem;
+    padding: 1.25rem;
+  }
+
+  .btn-submit {
+    padding: 0.75rem 1.5rem;
+  }
+}

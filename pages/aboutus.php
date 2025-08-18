@@ -1,16 +1,16 @@
 <?php
 session_start();
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-   if ($_SESSION['user_role'] === 'admin' && !isset($_GET['noredirect'])) {
+  if ($_SESSION['user_role'] === 'admin' && !isset($_GET['noredirect'])) {
     header('Location: /admin/adminhome.php');
     exit();
+  } else {
+    // User is logged in, include the user-specific navbar
+    include('../includes/user_nav.php');
+  }
 } else {
-        // User is logged in, include the user-specific navbar
-        include('../includes/user_nav.php');
-    }
-} else {
-    // User is not logged in, include the default navbar
-    include('../includes/navbar.php');
+  // User is not logged in, include the default navbar
+  include('../includes/navbar.php');
 }
 ?>
 
@@ -135,6 +135,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
   <?php include('../includes/footer.php'); ?>
 
   <script src="/assets/js/aboutus.js"></script>
+  <?php include 'chatbot.php'; ?>
 </body>
 
 </html>

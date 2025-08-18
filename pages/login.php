@@ -21,11 +21,59 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // Set default fetch mode to associative array
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     error_log("Database Connection failed: " . $e->getMessage());
     die("A database connection error occurred. Please try again later.");
 }
+
+// --- Check for Remember Me Cookie ---
+function checkRememberMeCookie($pdo)
+{
+    if (isset($_COOKIE['remember_user']) && !isset($_SESSION['logged_in'])) {
+        $cookie_data = $_COOKIE['remember_user'];
+        $parts = explode('|', $cookie_data);
+
+        if (count($parts) === 2) {
+            $user_id = $parts[0];
+            $token = $parts[1];
+
+            try {
+                $stmt = $pdo->prepare("SELECT user_id, username, email, password, role FROM users WHERE user_id = :user_id");
+                $stmt->bindParam(':user_id', $user_id);
+                $stmt->execute();
+
+                if ($stmt->rowCount() === 1) {
+                    $user = $stmt->fetch();
+                    $expected_token = hash('sha256', $user['email'] . $user['password'] . $_SERVER['REMOTE_ADDR']);
+
+                    if (hash_equals($expected_token, $token)) {
+                        // Valid remember me token, log the user in
+                        $_SESSION['user_id'] = $user['user_id'];
+                        $_SESSION['user_email'] = $user['email'];
+                        $_SESSION['user_username'] = $user['username'];
+                        $_SESSION['user_role'] = $user['role'];
+                        $_SESSION['logged_in'] = true;
+                        $_SESSION['remembered'] = true; // Flag to indicate auto-login
+
+                        // Refresh the cookie for another 30 days
+                        setcookie('remember_user', $cookie_data, time() + (86400 * 30), "/", "", false, true);
+
+                        return true;
+                    }
+                }
+            } catch (PDOException $e) {
+                error_log("Remember Me Error: " . $e->getMessage());
+            }
+        }
+
+        // Invalid cookie, remove it
+        setcookie('remember_user', '', time() - 3600, "/");
+    }
+    return false;
+}
+
+// Check remember me cookie on page load
+$auto_logged_in = checkRememberMeCookie($pdo);
 
 // --- Handle AJAX POST Requests ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -45,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // --- Login Logic ---
         $email = filter_var($data['email'] ?? '', FILTER_SANITIZE_EMAIL);
         $password = $data['password'] ?? '';
-        $remember_me = filter_var($data['rememberMe'] ?? '', FILTER_VALIDATE_BOOLEAN);
+        $remember_me = isset($data['rememberMe']) && ($data['rememberMe'] === 'on' || $data['rememberMe'] === true || $data['rememberMe'] === '1');
 
         $errors = [];
         if (empty($email)) {
@@ -79,8 +127,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ($remember_me) {
                         $cookie_name = "remember_user";
-                        $cookie_value = $user['user_id'] . '|' . hash('sha256', $user['email'] . $user['password'] . $_SERVER['REMOTE_ADDR']);
-                        setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/");
+                        $token = hash('sha256', $user['email'] . $user['password'] . $_SERVER['REMOTE_ADDR']);
+                        $cookie_value = $user['user_id'] . '|' . $token;
+
+                        // Set cookie for 30 days with security flags
+                        setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/", "", false, true);
+                    } else {
+                        // Clear any existing remember me cookie if not checked
+                        if (isset($_COOKIE['remember_user'])) {
+                            setcookie('remember_user', '', time() - 3600, "/");
+                        }
                     }
 
                     // --- Updated: Role-based Redirection URL ---
@@ -102,7 +158,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => false, 'message' => 'A database error occurred during login.']);
         }
         exit();
-
     } elseif ($action === 'signup') {
         // --- Signup Logic (remains unchanged) ---
         $username = filter_var($data['fullname'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -164,6 +219,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
+
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    if ($_SESSION['user_role'] === 'admin') {
+        header('Location: /admin/adminhome.php');
+        exit();
+    } else {
+        header('Location: home.php');
+        exit();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -182,22 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" crossorigin="anonymous"></script>
 
-    <?php
-    // Conditional inclusion of the navbar based on session
-    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-        if ($_SESSION['user_role'] === 'admin') {
-            // Redirect if an admin is on the login page after being logged in
-            header('Location: /admin/adminhome.php');
-            exit();
-        } else {
-            // User is logged in, include user-specific navbar
-            include('../includes/user_nav.php');
-        }
-    } else {
-        // User is not logged in, include default navbar
-        include('../includes/navbar.php');
-    }
-    ?>
+    <?php include('../includes/navbar.php'); ?>
 
     <main class="auth-main">
         <div class="auth-bg-elements">
@@ -232,11 +282,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" id="rememberMe" name="rememberMe" />
                             <span class="checkbox-mark"></span>
                         </div>
-                        <label for="rememberMe" class="checkbox-label">Remember me</label>
+                        <label for="rememberMe" class="checkbox-label">Remember me for 30 days</label>
                     </div>
                     <button type="submit" class="auth-submit">Sign In</button>
                     <div class="forgot-password">
-                        <a href="#" class="forgot-link">Forgot your password?</a>
+                        <a href="forgetpassword.php" class="forgot-link">Forgot your password?</a>
                     </div>
                 </form>
 
@@ -298,6 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
     <script src="/assets/js/login.js"></script>
+    <?php include 'chatbot.php'; ?>
 </body>
 
 </html>

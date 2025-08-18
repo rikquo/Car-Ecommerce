@@ -1,180 +1,181 @@
 <?php
 session_start();
-// Security check: Ensure the user is a logged-in admin.
-// if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['user_role'] !== 'admin') {
-//     http_response_code(403); // Forbidden
-//     echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-//     exit();
-// }
 
-// Include the database connection
-// The path might need adjustment based on your file structure.
-require_once '../../config/dbcon.php';
-
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-
-    $model = $_POST['model'] ?? '';
-    $series = $_POST['series'] ?? '';
-    $engine = $_POST['engine'] ?? '';
-    $power = $_POST['power'] ?? '';
-    $doors = $_POST['doors'] ?? '';
-    $mph = $_POST['mph'] ?? '';
-    $status = $_POST['status'] ?? 'available';
-    $price =    $_POST['price'] ?? 0;
-    $description = $_POST['description'] ?? '';
-    $stock =  $_POST['stock'] ?? '';
-
-
-    $isAssigned = [$model, $engine, $power, $series, $doors, $mph, $status, $price, $description, $stock];
-    foreach ($isAssigned as $value) {
-        if (empty($value)) {
-            $_SESSION['error'] = "All fields are required.";
-            header("Location: ../vehicles.php");
-            exit();
-        }
-    }
-
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-
-
-        // Size check
-
-        $fileTemp = $_FILES['image']['tmp_name']; // php/temp/shoe.png
-
-        $fileName = basename($_FILES['image']['name']); // shoe.png
-        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); // PNG
-        $newFileName = uniqid('car_', true) . '.' . $fileExtension; // car_123456789.png
-        $filePath = "../../uploads/";
-
-        $newFilePath = $filePath . $newFileName; // ../../uploads/car_model/car_123456789.png
-        echo "FIle Here";
-        move_uploaded_file($fileTemp, $newFilePath);
-    } else {
-        echo "Error";
-    }
-
-    $query = "INSERT INTO cars (series_id, name, price, image_url, engine, power_hp, doors, acceleration_0_60, description, stock_quantity) 
-              VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $status = $stmt->execute([
-        $series,
-        $model,
-        $price,
-        $newFilePath,
-        $engine,
-        $power,
-        $doors,
-        $mph,
-        $description,
-        $stock
-    ]);
-    if ($status) {
-        $_SESSION['success'] = "Vehicle added successfully!";
-        header("Location: ../vehicles.php");
-        exit();
-    } else {
-        $_SESSION['error'] = "Failed to add vehicle.";
-        header("Location: ../vehicles.php");
-        exit();
-    }
-} else {
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['user_role'] !== 'admin') {
+    $_SESSION['error'] = "Unauthorized access.";
     header("Location: ../vehicles.php");
     exit();
 }
 
+require_once '../../config/dbcon.php';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    try {
+
+        $model = trim($_POST['model'] ?? '');
+        $series = intval($_POST['series'] ?? 0);
+        $engine = trim($_POST['engine'] ?? '');
+        $power = intval($_POST['power'] ?? 0);
+        $doors = trim($_POST['doors'] ?? '');
+        $mph = trim($_POST['mph'] ?? '');
+        $price = floatval($_POST['price'] ?? 0);
+        $description = trim($_POST['description'] ?? '');
+        $stock = intval($_POST['stock'] ?? 0);
 
 
-// header('Content-Type: application/json');
+        if (empty($model)) {
+            $_SESSION['error'] = "Model name is required.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
 
-// // --- 1. Handle File Upload ---
-// if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-//     $uploadDir = '../../assets/img/uploads/'; // The directory to store uploaded images
-//     // Create the directory if it doesn't exist
-//     if (!is_dir($uploadDir)) {
-//         mkdir($uploadDir, 0755, true);
-//     }
+        if ($series <= 0 || $series > 3) {
+            $_SESSION['error'] = "Please select a valid series.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
 
-//     // Create a unique filename to prevent overwriting
-//     $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-//     $uniqueFilename = uniqid('car_', true) . '.' . $fileExtension;
-//     $uploadFile = $uploadDir . $uniqueFilename;
+        if (empty($engine)) {
+            $_SESSION['error'] = "Engine information is required.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
 
-//     if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
-//         // File is uploaded successfully. The path to store in DB:
-//         $imageUrl = '/assets/img/uploads/' . $uniqueFilename;
-//     } else {
-//         echo json_encode(['status' => 'error', 'message' => 'Failed to move uploaded file.']);
-//         exit();
-//     }
-// } else {
-//     echo json_encode(['status' => 'error', 'message' => 'Image upload failed or no image provided.']);
-//     exit();
-// }
+        if ($power <= 0) {
+            $_SESSION['error'] = "Power must be greater than 0.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
 
-// // --- 2. Get Data from POST Request ---
-// $model = $_POST['model'] ?? '';
-// $series_name = $_POST['series'] ?? '';
-// $engine = $_POST['engine'] ?? '';
-// $power = $_POST['power'] ?? '';
-// $doors = $_POST['doors'] ?? '';
-// $acceleration = $_POST['0-60mph'] ?? ''; // Note the key name matches the form
-// $price = $_POST['price'] ?? 0;
-// $description = $_POST['description'] ?? '';
-// $stock_quantity = 1; // Defaulting to 1, adjust if you have a stock field in the form
+        if ($price <= 0) {
+            $_SESSION['error'] = "Price must be greater than 0.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
 
-// // --- 3. Get `series_id` from `series_name` ---
-// // This is crucial for the foreign key constraint.
-// try {
-//     $stmt_series = $conn->prepare("SELECT series_id FROM car_series WHERE name = :series_name");
-//     $stmt_series->bindParam(':series_name', $series_name);
-//     $stmt_series->execute();
-//     $series_result = $stmt_series->fetch(PDO::FETCH_ASSOC);
+        if ($stock < 0) {
+            $_SESSION['error'] = "Stock quantity cannot be negative.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
 
-//     if (!$series_result) {
-//         // If series doesn't exist, you could either add it or return an error.
-//         // For now, let's return an error.
-//         echo json_encode(['status' => 'error', 'message' => 'Invalid series specified.']);
-//         exit();
-//     }
-//     $series_id = $series_result['series_id'];
 
-// } catch (PDOException $e) {
-//     echo json_encode(['status' => 'error', 'message' => 'Database error finding series: ' . $e->getMessage()]);
-//     exit();
-// }
+        $newFilePath = '';
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $fileTemp = $_FILES['image']['tmp_name'];
+            $fileName = basename($_FILES['image']['name']);
+            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-// // --- 4. Prepare and Execute SQL INSERT Statement ---
-// $sql = "INSERT INTO cars (series_id, name, price, image_url, engine, power_hp, doors, acceleration_0_60, description, stock_quantity) 
-//         VALUES (:series_id, :name, :price, :image_url, :engine, :power_hp, :doors, :acceleration, :description, :stock_quantity)";
 
-// try {
-//     $stmt = $conn->prepare($sql);
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                $_SESSION['error'] = "Invalid image format. Please use JPG, PNG, GIF, or WebP.";
+                header("Location: ../vehicles.php");
+                exit();
+            }
 
-//     // Bind parameters
-//     $stmt->bindParam(':series_id', $series_id, PDO::PARAM_INT);
-//     $stmt->bindParam(':name', $model);
-//     $stmt->bindParam(':price', $price);
-//     $stmt->bindParam(':image_url', $imageUrl);
-//     $stmt->bindParam(':engine', $engine);
-//     $stmt->bindParam(':power_hp', $power);
-//     $stmt->bindParam(':doors', $doors);
-//     $stmt->bindParam(':acceleration', $acceleration);
-//     $stmt->bindParam(':description', $description);
-//     $stmt->bindParam(':stock_quantity', $stock_quantity, PDO::PARAM_INT);
 
-//     $stmt->execute();
+            if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
+                $_SESSION['error'] = "Image file is too large. Maximum size is 5MB.";
+                header("Location: ../vehicles.php");
+                exit();
+            }
 
-//     // --- 5. Send Success Response ---
-//     echo json_encode([
-//         'status' => 'success', 
-//         'message' => 'Vehicle added successfully!',
-//         'vehicle_id' => $conn->lastInsertId()
-//     ]);
 
-// } catch (PDOException $e) {
-//     // --- 6. Send Error Response ---
-//     // In production, you might want to log this error instead of echoing it.
-//     echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
-// }
+            $newFileName = uniqid('car_', true) . '.' . $fileExtension;
+
+
+            $uploadDir = "../../uploads/";
+
+
+            if (!is_dir($uploadDir)) {
+                if (!mkdir($uploadDir, 0755, true)) {
+                    $_SESSION['error'] = "Failed to create upload directory.";
+                    header("Location: ../vehicles.php");
+                    exit();
+                }
+            }
+
+            $newFilePath = $uploadDir . $newFileName;
+
+
+            if (!move_uploaded_file($fileTemp, $newFilePath)) {
+                $_SESSION['error'] = "Failed to upload image.";
+                header("Location: ../vehicles.php");
+                exit();
+            }
+        } else {
+
+            switch ($_FILES['image']['error']) {
+                case UPLOAD_ERR_NO_FILE:
+                    $_SESSION['error'] = "No image file was uploaded.";
+                    break;
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $_SESSION['error'] = "Image file is too large.";
+                    break;
+                default:
+                    $_SESSION['error'] = "Image upload failed.";
+                    break;
+            }
+            header("Location: ../vehicles.php");
+            exit();
+        }
+
+
+        $query = "INSERT INTO cars (series_id, name, price, image_url, engine, power_hp, doors, acceleration_0_60, description, stock_quantity) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $conn->prepare($query);
+        $result = $stmt->execute([
+            $series,
+            $model,
+            $price,
+            $newFilePath,
+            $engine,
+            $power,
+            $doors,
+            $mph,
+            $description,
+            $stock
+        ]);
+
+        if ($result) {
+            $_SESSION['message'] = "Vehicle added successfully!";
+            header("Location: ../vehicles.php");
+            exit();
+        } else {
+
+            if (file_exists($newFilePath)) {
+                unlink($newFilePath);
+            }
+            $_SESSION['error'] = "Failed to add vehicle to database.";
+            header("Location: ../vehicles.php");
+            exit();
+        }
+    } catch (PDOException $e) {
+
+        if (isset($newFilePath) && file_exists($newFilePath)) {
+            unlink($newFilePath);
+        }
+
+        error_log("Database error in add_vehicles.php: " . $e->getMessage());
+        $_SESSION['error'] = "Database error occurred while adding vehicle.";
+        header("Location: ../vehicles.php");
+        exit();
+    } catch (Exception $e) {
+
+        if (isset($newFilePath) && file_exists($newFilePath)) {
+            unlink($newFilePath);
+        }
+
+        error_log("Error in add_vehicles.php: " . $e->getMessage());
+        $_SESSION['error'] = "An unexpected error occurred.";
+        header("Location: ../vehicles.php");
+        exit();
+    }
+} else {
+    $_SESSION['error'] = "Invalid request method.";
+    header("Location: ../vehicles.php");
+    exit();
+}

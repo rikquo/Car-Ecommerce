@@ -6,7 +6,6 @@ gsap.registerPlugin(ScrollTrigger);
 // Initial animations
 gsap.from("nav", { opacity: 0, y: -50, duration: 1 });
 
-// Background elements animations
 gsap.from(".bg-circle", {
   scale: 0,
   opacity: 0,
@@ -127,38 +126,41 @@ function switchForm() {
   });
 }
 
-// Function to toggle password visibility
 function togglePassword(passwordId, toggleButton) {
   const passwordInput = document.getElementById(passwordId);
   const isPassword = passwordInput.type === "password";
-  
+
   passwordInput.type = isPassword ? "text" : "password";
   toggleButton.classList.toggle("show-password", isPassword);
-  
-  // Add a subtle animation
-  gsap.fromTo(toggleButton, { scale: 0.8 }, { scale: 1, duration: 0.2, ease: "back.out(1.7)" });
+
+  gsap.fromTo(
+    toggleButton,
+    { scale: 0.8 },
+    { scale: 1, duration: 0.2, ease: "back.out(1.7)" }
+  );
 }
 
-// Message display function
 function showMessage(message, type) {
-  // Remove existing messages
-  const existingMessages = document.querySelectorAll(".error-message, .success-message");
+  const existingMessages = document.querySelectorAll(
+    ".error-message, .success-message"
+  );
   existingMessages.forEach((msg) => msg.remove());
 
-  // Create new message
   const messageDiv = document.createElement("div");
-  messageDiv.className = type === "success" ? "success-message" : "error-message";
+  messageDiv.className =
+    type === "success" ? "success-message" : "error-message";
   messageDiv.textContent = message;
 
-  // Insert at the top of the form
   const authCard = document.querySelector(".auth-card");
   const authHeader = document.querySelector(".auth-header");
   authCard.insertBefore(messageDiv, authHeader.nextSibling);
 
-  // Animate in
-  gsap.fromTo(messageDiv, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+  gsap.fromTo(
+    messageDiv,
+    { opacity: 0, y: -20 },
+    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+  );
 
-  // Auto remove after 5 seconds
   setTimeout(() => {
     gsap.to(messageDiv, {
       opacity: 0,
@@ -170,11 +172,32 @@ function showMessage(message, type) {
   }, 5000);
 }
 
+function handleRememberMe() {
+  const rememberCheckbox = document.getElementById("rememberMe");
+  const checkboxLabel = document.querySelector('label[for="rememberMe"]');
+
+  if (rememberCheckbox && checkboxLabel) {
+    rememberCheckbox.addEventListener("change", function () {
+      if (this.checked) {
+        checkboxLabel.textContent = "Remember me for 30 days";
+        gsap.to(checkboxLabel, { color: "#4caf50", duration: 0.3 });
+      } else {
+        checkboxLabel.textContent = "Remember me";
+        gsap.to(checkboxLabel, {
+          color: "rgba(255, 255, 255, 0.7)",
+          duration: 0.3,
+        });
+      }
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
 
-  // Input focus animations
+  handleRememberMe();
+
   document.querySelectorAll(".form-input").forEach((input) => {
     input.addEventListener("focus", () => {
       gsap.to(input, { scale: 1.02, duration: 0.3, ease: "power2.out" });
@@ -184,17 +207,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Button hover effects
-  document.querySelectorAll(".auth-submit, .switch-btn, .social-btn").forEach((btn) => {
-    btn.addEventListener("mouseenter", () => {
-      gsap.to(btn, { scale: 1.02, duration: 0.3, ease: "power2.out" });
+  document
+    .querySelectorAll(".auth-submit, .switch-btn, .social-btn")
+    .forEach((btn) => {
+      btn.addEventListener("mouseenter", () => {
+        gsap.to(btn, { scale: 1.02, duration: 0.3, ease: "power2.out" });
+      });
+      btn.addEventListener("mouseleave", () => {
+        gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
+      });
     });
-    btn.addEventListener("mouseleave", () => {
-      gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
-    });
-  });
 
-  // --- Form Submission Handlers ---
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -206,7 +229,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const formData = new FormData(loginForm);
       const data = Object.fromEntries(formData.entries());
-      data.action = 'login'; // Ensure action is set
+      data.action = "login";
+
+      const rememberCheckbox = document.getElementById("rememberMe");
+      data.rememberMe = rememberCheckbox && rememberCheckbox.checked;
 
       try {
         const response = await fetch("login.php", {
@@ -220,9 +246,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (result.success) {
           showMessage(result.message, "success");
+
+          if (data.rememberMe) {
+            setTimeout(() => {
+              showMessage("You'll stay logged in for 30 days!", "success");
+            }, 1000);
+          }
+
           setTimeout(() => {
             window.location.href = result.redirect || "index.php";
-          }, 1500);
+          }, 2000);
         } else {
           showMessage(result.message, "error");
         }
@@ -247,9 +280,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const formData = new FormData(signupForm);
       const data = Object.fromEntries(formData.entries());
-      data.action = 'signup'; // Ensure action is set
+      data.action = "signup";
 
-      // Client-side password confirmation check
       if (data.password !== data.confirmPassword) {
         showMessage("Passwords do not match.", "error");
         submitBtn.textContent = originalText;
@@ -270,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result.success) {
           showMessage(result.message, "success");
           setTimeout(() => {
-            switchForm(); // Switch to login form after successful signup
+            switchForm();
           }, 2000);
         } else {
           showMessage(result.message, "error");
@@ -285,7 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Real-time validation
   const emailInputs = document.querySelectorAll('input[type="email"]');
   const passwordInputs = document.querySelectorAll('input[type="password"]');
 
@@ -319,7 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Optional: Social login handlers
 function handleGoogleLogin() {
   alert("Google login is not yet implemented.");
 }

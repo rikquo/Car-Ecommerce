@@ -3,7 +3,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  
 }
 
 :root {
@@ -47,9 +46,12 @@ body {
 .bg-circle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(69, 94, 124, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(76, 175, 80, 0.1),
+    rgba(69, 94, 124, 0.1)
+  );
   animation: float 8s ease-in-out infinite;
-  
 }
 
 .bg-circle-1 {
@@ -58,7 +60,12 @@ body {
   top: 0%;
   left: 10%;
   animation-delay: 0s;
-  background: radial-gradient(circle, rgba(35, 156, 255, 0.399) 0%, rgba(47, 61, 81, 0.419) 50%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(35, 156, 255, 0.399) 0%,
+    rgba(47, 61, 81, 0.419) 50%,
+    transparent 70%
+  );
   opacity: 0.5;
 }
 
@@ -68,7 +75,12 @@ body {
   right: 5%;
   width: 400px;
   height: 500px;
-  background: radial-gradient(circle, rgba(35, 255, 207, 0.54) 0%, rgba(47, 69, 81, 0.419) 50%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(35, 255, 207, 0.54) 0%,
+    rgba(47, 69, 81, 0.419) 50%,
+    transparent 70%
+  );
   border-radius: 50%;
   filter: blur(50px);
   opacity: 0.5;
@@ -78,10 +90,15 @@ body {
 .bg-circle-3 {
   width: 450px;
   height: 400px;
-  top: 93%;
+  top: 70%;
   left: 20%;
   animation-delay: -4s;
-  background: radial-gradient(circle, rgba(35, 174, 255, 0.399) 0%, rgba(47, 66, 81, 0.419) 50%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(35, 174, 255, 0.399) 0%,
+    rgba(47, 66, 81, 0.419) 50%,
+    transparent 70%
+  );
   opacity: 0.5;
 }
 
@@ -100,7 +117,6 @@ body {
   min-height: 100vh;
   position: relative;
 }
-
 
 .sidebar {
   width: 280px;
@@ -387,7 +403,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .stat-card:hover {
@@ -467,7 +488,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .chart-header {
@@ -554,7 +580,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .section-header {
@@ -639,7 +670,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .table-controls {
@@ -902,7 +938,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .card-header {
@@ -1009,7 +1050,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .settings-header {
@@ -1125,7 +1171,12 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .modal-header {
@@ -1467,4 +1518,62 @@ body {
 
 .h-full {
   height: 100%;
+}
+
+/* Dropdown/Select Styling */
+.filter-select,
+select {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: white;
+  font-size: 0.9rem;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+.filter-select:focus,
+select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.filter-select option,
+select option {
+  background-color: #2d3748;
+  color: white;
+}
+
+/* For dark theme compatibility */
+select option:checked {
+  background-color: #4a5568;
+  color: white;
+}
+
+/* Fix for Firefox */
+@-moz-document url-prefix() {
+  .filter-select,
+  select {
+    padding-right: 1.5rem;
+  }
+}
+
+.modal-content select {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-content select option {
+  background-color: #2d3748;
+  color: white;
 }
