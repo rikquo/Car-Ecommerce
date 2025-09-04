@@ -1,0 +1,26 @@
+🔑 Features
+
+User Authentication – Secure login and registration with validation.
+Car Listings – Browse available cars with images, specifications, and pricing.
+Search & Filter – Locate cars by brand, model, price, or category.
+Responsive Design – Mobile-friendly interface for seamless access.
+Admin Dashboard – Manage users, listings, and overall site activity.
+Product Management – Add, edit, and delete cars from the database.
+Inventory Tracking – Monitor stock and availability in real-time.
+Profile Management – Users can update personal information and saved listings.
+Order & Booking System (planned) – Allow customers to reserve or purchase vehicles online.
+Animated UI – GSAP-powered animations for a smooth, dynamic look and feel.
+Security Features – Input validation and session handling to protect data.
+
+🛠️ Tech Stack
+Backend: PHP, MySQL (XAMPP)
+Frontend: HTML, CSS, JavaScript, GSAP
+Database: MySQL
+Server Environment: XAMPP / Apache
+
+🎯 Purpose
+This project is developed as a learning and portfolio project to strengthen skills in:
+Full-stack web development (PHP + MySQL + JavaScript)
+Database design and management
+UI/UX design with modern animations
+Building secure, scalable web applications
